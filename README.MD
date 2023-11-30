@@ -1,7 +1,7 @@
-# SDG Classification
+# SDG Classification Tools
 
 ## Description
-The `sdg-classification` script is designed to process CSV files containing text data, specifically in the 'Abstract' column, and classify each entry using the Sustainable Development Goals (SDG) classifier API. The script allows for configuration of various parameters such as the classifier model, SDG threshold, and input/output file paths, making it versatile for different datasets and use cases.
+The `sdg-classification-tools` script is designed to process CSV files containing text data, specifically in the 'Abstract' column, and classify each entry using the Sustainable Development Goals (SDG) classifier API. The script allows for configuration of various parameters such as the classifier model, SDG threshold, and input/output file paths, making it versatile for different datasets and use cases.
 
 ## TL;DR
 The script reads text data from a CSV file, classifies it using the SDG classifier API, and appends the results to the file, exporting it with a new name indicating the process completion date and time.
@@ -17,7 +17,7 @@ To install `sdg-classification`, follow these steps:
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/ubvu/sdg-classification.git
+    git clone https://github.com/ubvu/sdg-classification-tools.git
     cd sdg-classification
     ```
 
