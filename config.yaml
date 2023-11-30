@@ -1,0 +1,5 @@
+data_input_folder: ./data_input/
+data_input_file: works.csv  
+data_output_folder: ./data_output/
+sdg_threshold: 0.98 # The threshold a value needs to reach to give an SDG label
+classifier_url: "https://aurora-sdg.labs.vu.nl/classifier/classify/aurora-sdg-multi" # or "https://aurora-sdg.labs.vu.nl/classifier/classify/aurora-sdg" (a faster model, but less suitable for threshold values)
