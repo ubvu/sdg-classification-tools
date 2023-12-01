@@ -100,7 +100,8 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
 
         # Update progress for GUI if update_progress function is provided
         if update_progress is not None:
-            update_progress((index + 1) / df.shape[0] * 100)
+            current_progress = (index + 1) / total_rows * 100
+            update_progress(current_progress, total_rows, rate_limit)
 
         # Apply a rate limit to respect API constraints
         time.sleep(rate_limit) 
