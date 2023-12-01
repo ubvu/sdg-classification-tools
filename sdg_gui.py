@@ -38,7 +38,7 @@ def classify():
     progress_bar['value'] = 0
 
     # Start the classification process in a separate thread
-    threading.Thread(target=start_classification, args=(input_file, output_folder, model_url, threshold)).start()
+    threading.Thread(target=start_classification, args=(input_file, output_folder, model_url, threshold, rate_limit)).start()
 
 # Load config
 config = load_config()
