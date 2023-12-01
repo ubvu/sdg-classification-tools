@@ -3,3 +3,4 @@ requests
 json
 pyyaml
 os
+numpy

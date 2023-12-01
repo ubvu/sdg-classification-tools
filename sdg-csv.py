@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 import yaml
 import os
+import numpy as np  # Import numpy for percentile calculation
 
 def classify_text_sdg(text, classifier_url):
     """
@@ -51,6 +52,8 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     for i in range(1, 18):
         df[f'SDG_{i}'] = 0.0
     df[sdg_column_name] = ''
+    df['SDG_AVG'] = 0.0  # New column for average SDG score
+    df['SDG_90th_percentile'] = 0.0  # New column for 90th percentile SDG score
     df['SDG_Top_3'] = '' # Initialize a new column for Top 3 SDGs
     df['Classifier_Model_Used'] = classifier_url  # Use the classifier url from config
 
@@ -66,6 +69,11 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
         sdg_predictions = classify_text_sdg(row['Abstract'], classifier_url)
         if not sdg_predictions:
             continue
+
+        # Calculate the average and 90th percentile of the SDG prediction scores
+        scores = [pred['prediction'] for pred in sdg_predictions]
+        df.at[index, 'SDG_AVG'] = np.mean(scores)
+        df.at[index, 'SDG_90th_percentile'] = np.percentile(scores, 90)
 
         # Sort predictions by score and get top 3 SDGs with their percentages
         top_3_sdg = sorted(sdg_predictions, key=lambda x: x['prediction'], reverse=True)[:3]
