@@ -23,7 +23,7 @@ def update_progress(current_progress, total_rows, rate_limit):
     remaining = total_rows - int((current_progress / 100) * total_rows)
     estimated_time = remaining * rate_limit  # Calculate estimated time remaining
     progress_label.config(text=f"Records remaining: {remaining}, Estimated time: {estimated_time:.2f} seconds")
-    progress_bar['current_progress'] = current_progress
+    progress_bar['value'] = current_progress
     root.update_idletasks()
 
 # Function to start the classification process
@@ -47,7 +47,7 @@ def classify():
     model_url = model_var.get()
     threshold = float(threshold_var.get())
     rate_limit = float(config['rate_limit'])  # Get rate limit from config
-    progress_bar['current_progress'] = 0
+    progress_bar['value'] = 0
 
     # Enable "Stop and Save" button and start classification
     stop_button['state'] = 'normal'
