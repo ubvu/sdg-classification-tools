@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import yaml
 import threading
+import os  # Import the os module
 import sdg_csv  # Assuming sdg_csv.py is the module name of your script
 
 # Function to load config settings
