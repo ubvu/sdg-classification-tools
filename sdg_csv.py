@@ -31,7 +31,7 @@ def classify_text_sdg(text, classifier_url):
     else:
         return None
 
-def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_base_name):
+def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_base_name, update_progress):
     """
     Process the CSV file by classifying each row with the SDG classifier and appending the results.
 
@@ -45,6 +45,9 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     
     # Load the CSV file into a DataFrame
     df = pd.read_csv(file_path)
+
+    # count total number of rows in the csv file
+    total_rows = len(df)
 
     # Create a dynamic column name based on the configured SDG threshold
     sdg_column_name = f'SDG_{int(sdg_threshold * 100)}%_certainty'
@@ -60,7 +63,9 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     df['SDG_Top_90th_percentile'] = ''  # New column for SDGs above 90th percentile
     df['Classifier_Model_Used'] = classifier_url  # Use the classifier url from config
 
-    for index, row in tqdm(df.iterrows(), total=df.shape[0], desc="Processing rows"):
+    for index, row in df.iterrows():
+        # Update the progress bar
+        update_progress((index + 1) / total_rows * 100)
         # Skip processing if the 'Abstract' field is blank
         if pd.isna(row['Abstract']) or row['Abstract'].strip() == '':
             continue

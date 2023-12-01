@@ -9,11 +9,15 @@ def load_config():
     with open('config.yaml', 'r') as file:
         return yaml.safe_load(file)
 
+# Function to provide a live update to the progress bar as each row is processed. 
+def update_progress(value):
+    progress_bar['value'] = value
+    root.update_idletasks()
+
 # Function to start the classification process
-def start_classification(input_file, output_folder, model_url, threshold, progress_bar):
-    # Assuming your process_csv function can be called like this
-    sdg_csv.process_csv(input_file, output_folder, threshold, model_url, 'classified_output')
-    progress_bar['value'] = 100
+def start_classification(input_file, output_folder, model_url, threshold):
+    input_base_name = os.path.splitext(os.path.basename(input_file))[0]
+    sdg_csv.process_csv(input_file, output_folder, threshold, model_url, input_base_name, update_progress)
     messagebox.showinfo("Complete", "Classification completed successfully.")
 
 # Function to handle the classification process in a separate thread
