@@ -6,6 +6,7 @@ from datetime import datetime
 import yaml
 import os
 import numpy as np  # Import numpy for percentile calculation
+from tqdm import tqdm  # Import tqdm for the progress bar
 
 def classify_text_sdg(text, classifier_url):
     """
@@ -59,7 +60,7 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     df['SDG_Top_90th_percentile'] = ''  # New column for SDGs above 90th percentile
     df['Classifier_Model_Used'] = classifier_url  # Use the classifier url from config
 
-    for index, row in df.iterrows():
+    for index, row in tqdm(df.iterrows(), total=df.shape[0], desc="Processing rows"):
         # Skip processing if the 'Abstract' field is blank
         if pd.isna(row['Abstract']) or row['Abstract'].strip() == '':
             continue
