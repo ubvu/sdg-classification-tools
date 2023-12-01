@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox, ttk
 import yaml
 import threading
 import os  # Import the os module
+import pandas as pd  # Import pandas to read the CSV file for record count
 import sdg_csv  # Assuming sdg_csv.py is the module name of your script
 
 # Function to load config settings
@@ -11,14 +12,20 @@ def load_config():
         return yaml.safe_load(file)
 
 # Function to provide a live update to the progress bar as each row is processed. 
-def update_progress(value):
+def update_progress(value, total, rate_limit):
+    remaining = total - int((value / 100) * total)
+    estimated_time = remaining * rate_limit  # Calculate estimated time remaining
+    progress_label.config(text=f"Records remaining: {remaining}, Estimated time: {estimated_time:.2f} seconds")
     progress_bar['value'] = value
     root.update_idletasks()
 
 # Function to start the classification process
-def start_classification(input_file, output_folder, model_url, threshold):
+def start_classification(input_file, output_folder, model_url, threshold, rate_limit):
+    # Calculate the total number of records and the rate limit
+    df = pd.read_csv(input_file)
+    total_records = len(df)
     input_base_name = os.path.splitext(os.path.basename(input_file))[0]
-    sdg_csv.process_csv(input_file, output_folder, threshold, model_url, input_base_name, update_progress)
+    sdg_csv.process_csv(input_file, output_folder, threshold, model_url, input_base_name, rate_limit, lambda value: update_progress(value, total_records, rate_limit))
     messagebox.showinfo("Complete", "Classification completed successfully.")
 
 # Function to handle the classification process in a separate thread
@@ -27,6 +34,7 @@ def classify():
     output_folder = folder_output.get()
     model_url = model_var.get()
     threshold = float(threshold_var.get())
+    rate_limit = float(config['rate_limit'])  # Get rate limit from config
     progress_bar['value'] = 0
 
     # Start the classification process in a separate thread
@@ -37,7 +45,7 @@ config = load_config()
 
 # Create the main window
 root = tk.Tk()
-root.title("SDG Classification")
+root.title("SDG Classification Tool")
 
 # Input file selection
 tk.Label(root, text="Select Input File:").grid(row=0, column=0, sticky='w')
@@ -67,7 +75,11 @@ tk.Button(root, text="Classify", command=classify).grid(row=4, column=1)
 
 # Progress bar
 progress_bar = ttk.Progressbar(root, orient='horizontal', length=300, mode='determinate')
-progress_bar.grid(row=5, column=0, columnspan=3, pady=10)
+progress_bar.grid(row=6, column=0, columnspan=3, pady=10)
+
+# Progress label for records remaining and estimated time
+progress_label = tk.Label(root, text="Records remaining: 0, Estimated time: 0 seconds")
+progress_label.grid(row=7, column=0, columnspan=3)
 
 # Run the application
 root.mainloop()

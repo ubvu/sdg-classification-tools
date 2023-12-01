@@ -8,6 +8,12 @@ import os
 import numpy as np  # Import numpy for percentile calculation
 from tqdm import tqdm  # Import tqdm for the progress bar
 
+# Function to load config settings
+def load_config():
+    config_path = './config.yaml'  # Adjust this path as needed
+    with open(config_path, 'r') as file:
+        return yaml.safe_load(file)
+
 def classify_text_sdg(text, classifier_url):
     """
     Classify the given text using the SDG classifier API.
@@ -31,7 +37,7 @@ def classify_text_sdg(text, classifier_url):
     else:
         return None
 
-def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_base_name, update_progress=None):
+def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_base_name, rate_limit=None, update_progress=None):
     """
     Process the CSV file by classifying each row with the SDG classifier and appending the results.
 
@@ -42,6 +48,11 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     classifier_url (str): URL of the SDG classifier API.
     input_base_name (str): Base name of the input file for naming the output file.
     """
+    
+    # Load config if rate_limit is not provided
+    if rate_limit is None:
+        config = load_config()
+        rate_limit = float(config['rate_limit'])
     
     # Load the CSV file into a DataFrame
     df = pd.read_csv(file_path)
@@ -80,7 +91,7 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
             update_progress((index + 1) / df.shape[0] * 100)
 
         # Apply a rate limit to respect API constraints
-        time.sleep(0.2) 
+        time.sleep(rate_limit) 
 
         # Retrieve SDG predictions for the text
         sdg_predictions = classify_text_sdg(row['Abstract'], classifier_url)
@@ -144,8 +155,7 @@ def main():
     """
     
     # Read the configuration settings from the YAML file
-    with open('config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
+    config = load_config()
 
     # Construct the full paths for input and output
     input_file = config['data_input_file']
