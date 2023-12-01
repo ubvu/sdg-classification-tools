@@ -90,6 +90,26 @@ In addition to the command-line functionality, `sdg-classification-tools` now in
 - Ensure all dependencies are installed as mentioned in the installation section.
 - Python's Tkinter library is used for the GUI, which is typically included in standard Python installations.
 
+
+## Result Preview
+
+### Output of the Script
+After running the `sdg-classification-tools` script, the output is a CSV file with additional columns containing the classification results. The script appends several columns to the original data, providing detailed insights into the SDG classifications based on the text data in the 'Abstract' column.
+
+### Added Columns Include:
+- **SDG scores for each of the 17 goals**: Reflecting the relevance of each entry to the respective SDGs.
+- **SDG Threshold Certainty**: A column indicating which SDGs meet the set threshold certainty.
+- **Top 3 SDGs**: The three highest-scoring SDGs for each entry.
+- **Average and 90th Percentile Scores**: Offering an overview of the distribution of SDG relevance scores.
+- **SDGs Above Average and 90th Percentile**: Highlighting the SDGs that score above the average and 90th percentile respectively.
+- **Classifier Model Used**: Indicating which classifier model was used for the analysis.
+
+### Sample Output File
+For a practical example of the script's output, refer to the sample file provided in the repository:
+- [Sample Output File](./data_output/works_sdg_20231201_132455.csv)
+
+This sample file demonstrates the enriched dataset post-classification, showcasing how the script can be utilized for data analysis and research purposes in the context of Sustainable Development Goals.
+
 ---
 
 Feel free to contribute to the development of this project by submitting pull requests or opening issues for any bugs or feature requests.
