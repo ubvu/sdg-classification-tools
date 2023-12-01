@@ -55,6 +55,8 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     df['SDG_AVG'] = 0.0  # New column for average SDG score
     df['SDG_90th_percentile'] = 0.0  # New column for 90th percentile SDG score
     df['SDG_Top_3'] = '' # Initialize a new column for Top 3 SDGs
+    df['SDG_Top_AVG'] = ''  # New column for SDGs above average
+    df['SDG_Top_90th_percentile'] = ''  # New column for SDGs above 90th percentile
     df['Classifier_Model_Used'] = classifier_url  # Use the classifier url from config
 
     for index, row in df.iterrows():
@@ -70,11 +72,6 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
         if not sdg_predictions:
             continue
 
-        # Calculate the average and 90th percentile of the SDG prediction scores
-        scores = [pred['prediction'] for pred in sdg_predictions]
-        df.at[index, 'SDG_AVG'] = np.mean(scores)
-        df.at[index, 'SDG_90th_percentile'] = np.percentile(scores, 90)
-
         # Sort predictions by score and get top 3 SDGs with their percentages
         top_3_sdg = sorted(sdg_predictions, key=lambda x: x['prediction'], reverse=True)[:3]
         
@@ -84,6 +81,21 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
         # Update the DataFrame with the top 3 SDGs
         df.at[index, 'SDG_Top_3'] = ' | '.join(top_3_sdg_formatted)
 
+        # Calculating average and 90th percentile scores
+        scores = [pred['prediction'] for pred in sdg_predictions]
+        average_score = np.mean(scores)
+        percentile_90_score = np.percentile(scores, 90)
+
+        df.at[index, 'SDG_AVG'] = average_score
+        df.at[index, 'SDG_90th_percentile'] = percentile_90_score
+
+        # Filtering SDGs above average and 90th percentile
+        sdg_above_avg = [pred for pred in sdg_predictions if pred['prediction'] >= average_score]
+        sdg_above_90th = [pred for pred in sdg_predictions if pred['prediction'] >= percentile_90_score]
+
+        # Formatting SDGs for the new columns
+        df.at[index, 'SDG_Top_AVG'] = ' | '.join([f"SDG {str(sdg['sdg']['code']).zfill(2)} ({sdg['prediction']*100:.0f}%) {sdg['sdg']['name']}" for sdg in sdg_above_avg])
+        df.at[index, 'SDG_Top_90th_percentile'] = ' | '.join([f"SDG {str(sdg['sdg']['code']).zfill(2)} ({sdg['prediction']*100:.0f}%) {sdg['sdg']['name']}" for sdg in sdg_above_90th])
 
         # Collect SDGs that meet the threshold criteria
         sdg_list = []
