@@ -51,6 +51,7 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     for i in range(1, 18):
         df[f'SDG_{i}'] = 0.0
     df[sdg_column_name] = ''
+    df['SDG_Top_3'] = '' # Initialize a new column for Top 3 SDGs
     df['Classifier_Model_Used'] = classifier_url  # Use the classifier url from config
 
     for index, row in df.iterrows():
@@ -65,6 +66,16 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
         sdg_predictions = classify_text_sdg(row['Abstract'], classifier_url)
         if not sdg_predictions:
             continue
+
+        # Sort predictions by score and get top 3 SDGs with their percentages
+        top_3_sdg = sorted(sdg_predictions, key=lambda x: x['prediction'], reverse=True)[:3]
+        
+        # Format the "SDG_Top_3" column to include the SDG code (padded with zeros to two digits), the prediction score (converted to a percentage and rounded to no decimal places), and the SDG name. This formatting provides a clear and detailed overview of the top SDG predictions for each row.
+        top_3_sdg_formatted = [f"SDG {str(sdg['sdg']['code']).zfill(2)} ({sdg['prediction']*100:.0f}%) {sdg['sdg']['name']}" for sdg in top_3_sdg]
+        
+        # Update the DataFrame with the top 3 SDGs
+        df.at[index, 'SDG_Top_3'] = ' | '.join(top_3_sdg_formatted)
+
 
         # Collect SDGs that meet the threshold criteria
         sdg_list = []
