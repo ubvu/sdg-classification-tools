@@ -70,52 +70,54 @@ config = load_config()
 root = tk.Tk()
 root.title("SDG Classification Tool")
 
-# Tool Description
-description_text = """SDG Classification Tool:
-This tool processes CSV files containing text data and classifies each entry using the Sustainable Development Goals (SDG) classifier API. 
-You can configure the input/output paths, select the classification model, and set a certainty threshold for classification.
-The results are appended to the original file with additional columns indicating SDG relevance."""
-
-description_label = tk.Label(root, text=description_text, justify=tk.LEFT, wraplength=400)
-description_label.grid(row=0, column=0, columnspan=3, sticky='w', padx=10, pady=10)
-
 # Input file selection
-tk.Label(root, text="Select Input File:").grid(row=1, column=0, sticky='w')
+tk.Label(root, text="Select Input File:").grid(row=0, column=0, sticky='w')
 file_input = tk.StringVar(value=config['data_input_folder'] + config['data_input_file'])
 tk.Entry(root, textvariable=file_input, width=50).grid(row=0, column=1)
 tk.Button(root, text="Browse...", command=lambda: file_input.set(filedialog.askopenfilename())).grid(row=0, column=2)
 
 # Output folder selection
-tk.Label(root, text="Select Output Folder:").grid(row=2, column=0, sticky='w')
+tk.Label(root, text="Select Output Folder:").grid(row=1, column=0, sticky='w')
 folder_output = tk.StringVar(value=config['data_output_folder'])
 tk.Entry(root, textvariable=folder_output, width=50).grid(row=1, column=1)
 tk.Button(root, text="Browse...", command=lambda: folder_output.set(filedialog.askdirectory())).grid(row=1, column=2)
 
 # Model selection
 model_var = tk.StringVar(value=config['classifier_url'])
-tk.Label(root, text="Select Model:").grid(row=3, column=0, sticky='w')
+tk.Label(root, text="Select Model:").grid(row=2, column=0, sticky='w')
 tk.Radiobutton(root, text="Fast Model (aurora-sdg-multi)", variable=model_var, value="https://aurora-sdg.labs.vu.nl/classifier/classify/aurora-sdg-multi").grid(row=2, column=1, sticky='w')
 tk.Radiobutton(root, text="Slow Model (aurora-sdg)", variable=model_var, value="https://aurora-sdg.labs.vu.nl/classifier/classify/aurora-sdg").grid(row=2, column=2, sticky='w')
 
 # Threshold selection
 threshold_var = tk.StringVar(value=str(config['sdg_threshold']))
-tk.Label(root, text="Certainty Threshold:").grid(row=4, column=0, sticky='w')
-tk.Entry(root, textvariable=threshold_var, width=10).grid(row=4, column=1, sticky='w')
+tk.Label(root, text="Certainty Threshold:").grid(row=3, column=0, sticky='w')
+tk.Entry(root, textvariable=threshold_var, width=10).grid(row=3, column=1, sticky='w')
 
 # "Classify" button
-tk.Button(root, text="Classify", command=classify).grid(row=5, column=1)
+tk.Button(root, text="Classify", command=classify).grid(row=4, column=1)
 
 # "Stop and Save" button (initially disabled)
 stop_button = tk.Button(root, text="Stop and Save", command=stop_and_save, state='disabled')
-stop_button.grid(row=5, column=2)
+stop_button.grid(row=4, column=2)
 
 # Progress bar
 progress_bar = ttk.Progressbar(root, orient='horizontal', length=300, mode='determinate')
-progress_bar.grid(row=7, column=0, columnspan=3, pady=10)
+progress_bar.grid(row=6, column=0, columnspan=3, pady=10)
 
 # Progress label for records remaining and estimated time
 progress_label = tk.Label(root, text="Records remaining: 0, Estimated time: 0 seconds")
-progress_label.grid(row=8, column=0, columnspan=3)
+progress_label.grid(row=7, column=0, columnspan=3)
+
+
+# Tool Description
+description_text = """SDG Classification Tool:
+This tool processes CSV files containing text data and classifies each entry using the Sustainable Development Goals (SDG) classifier API. 
+You can configure the input/output paths, select the classification model, and set a certainty threshold for classification.
+The results are appended to the original file with additional columns indicating SDG relevance."""
+
+description_label = tk.Label(root, text=description_text, justify=tk.LEFT, wraplength=800)
+description_label.grid(row=9, column=0, columnspan=6, sticky='w', padx=10, pady=10)
+
 
 # Run the application
 root.mainloop()
