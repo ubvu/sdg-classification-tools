@@ -52,6 +52,9 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     # Create a dynamic column name based on the configured SDG threshold
     sdg_column_name = f'SDG_{int(sdg_threshold * 100)}%_certainty'
 
+    # Create a dynamic column name for the threshold-based percentile
+    sdg_percentile_column_name = f'SDG_Top_{int(sdg_threshold * 100)}th_Percentile'
+
     # Initialize columns for each SDG and the dynamic threshold column
     for i in range(1, 18):
         df[f'SDG_{i}'] = 0.0
@@ -61,6 +64,7 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     df['SDG_Top_3'] = '' # Initialize a new column for Top 3 SDGs
     df['SDG_Top_AVG'] = ''  # New column for SDGs above average
     df['SDG_Top_90th_percentile'] = ''  # New column for SDGs above 90th percentile
+    df[sdg_percentile_column_name] = 0.0
     df['Classifier_Model_Used'] = classifier_url  # Use the classifier url from config
 
     # Determine whether to use tqdm or update_progress based on if update_progress is provided
@@ -96,17 +100,21 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
         scores = [pred['prediction'] for pred in sdg_predictions]
         average_score = np.mean(scores)
         percentile_90_score = np.percentile(scores, 90)
-
+        threshold_percentile_score = np.percentile(scores, sdg_threshold * 100)  # Calculate the percentile based on the threshold
+        
         df.at[index, 'SDG_AVG'] = average_score
         df.at[index, 'SDG_90th_percentile'] = percentile_90_score
-
-        # Filtering SDGs above average and 90th percentile
+        df.at[index, sdg_percentile_column_name] = threshold_percentile_score
+          
+        # Filtering SDGs above average, the 90th percentile, and the threshold percentile.
         sdg_above_avg = [pred for pred in sdg_predictions if pred['prediction'] >= average_score]
         sdg_above_90th = [pred for pred in sdg_predictions if pred['prediction'] >= percentile_90_score]
+        sdg_above_threshold = [pred for pred in sdg_predictions if pred['prediction'] >= threshold_percentile_score]
 
         # Formatting SDGs for the new columns
         df.at[index, 'SDG_Top_AVG'] = ' | '.join([f"SDG {str(sdg['sdg']['code']).zfill(2)} ({sdg['prediction']*100:.0f}%) {sdg['sdg']['name']}" for sdg in sdg_above_avg])
         df.at[index, 'SDG_Top_90th_percentile'] = ' | '.join([f"SDG {str(sdg['sdg']['code']).zfill(2)} ({sdg['prediction']*100:.0f}%) {sdg['sdg']['name']}" for sdg in sdg_above_90th])
+        df.at[index, sdg_percentile_column_name] = ' | '.join([f"SDG {str(sdg['sdg']['code']).zfill(2)} ({sdg['prediction']*100:.0f}%) {sdg['sdg']['name']}" for sdg in sdg_above_threshold])
 
         # Collect SDGs that meet the threshold criteria
         sdg_list = []
