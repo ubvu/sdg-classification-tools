@@ -8,6 +8,13 @@ import os
 import numpy as np  # Import numpy for percentile calculation
 from tqdm import tqdm  # Import tqdm for the progress bar
 
+# Global variable to control stopping
+stop_classification = False
+
+def set_stop_classification(value: bool):
+    global stop_classification
+    stop_classification = value
+
 # Function to load config settings
 def load_config():
     config_path = './config.yaml'  # Adjust this path as needed
@@ -48,6 +55,7 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     classifier_url (str): URL of the SDG classifier API.
     input_base_name (str): Base name of the input file for naming the output file.
     """
+    global stop_classification
     
     # Load config if rate_limit is not provided
     if rate_limit is None:
@@ -82,6 +90,10 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     iterator = tqdm(df.iterrows(), total=df.shape[0], desc="Processing rows") if update_progress is None else df.iterrows()
 
     for index, row in iterator:
+        if stop_classification:
+            print("Stopping classification...")
+            break
+        
         # Skip processing if the 'Abstract' field is blank
         if pd.isna(row['Abstract']) or row['Abstract'].strip() == '':
             continue
@@ -147,6 +159,7 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
 
     # Save the processed DataFrame to a CSV file
     df.to_csv(new_file_path, index=False)
+    print("Progress saved to:", new_file_path)
 
 def main():
     """

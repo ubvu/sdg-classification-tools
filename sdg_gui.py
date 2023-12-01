@@ -11,6 +11,10 @@ def load_config():
     with open('config.yaml', 'r') as file:
         return yaml.safe_load(file)
 
+# Function to stop the classification and save progress
+def stop_and_save():
+    sdg_csv.set_stop_classification(True)
+
 # Function to provide a live update to the progress bar as each row is processed. 
 def update_progress(value, total, rate_limit):
     remaining = total - int((value / 100) * total)
@@ -70,8 +74,11 @@ threshold_var = tk.StringVar(value=str(config['sdg_threshold']))
 tk.Label(root, text="Certainty Threshold:").grid(row=3, column=0, sticky='w')
 tk.Entry(root, textvariable=threshold_var, width=10).grid(row=3, column=1, sticky='w')
 
-# Classify button
+# "Classify" button
 tk.Button(root, text="Classify", command=classify).grid(row=4, column=1)
+
+# "Stop and Save" button
+tk.Button(root, text="Stop and Save", command=stop_and_save).grid(row=4, column=2)
 
 # Progress bar
 progress_bar = ttk.Progressbar(root, orient='horizontal', length=300, mode='determinate')
