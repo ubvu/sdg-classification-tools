@@ -64,7 +64,7 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     df['SDG_Top_3'] = '' # Initialize a new column for Top 3 SDGs
     df['SDG_Top_AVG'] = ''  # New column for SDGs above average
     df['SDG_Top_90th_percentile'] = ''  # New column for SDGs above 90th percentile
-    df[sdg_percentile_column_name] = 0.0
+    df[sdg_percentile_column_name] = 0.0 # New column for SDGs above the treshol value as percentile
     df['Classifier_Model_Used'] = classifier_url  # Use the classifier url from config
 
     # Determine whether to use tqdm or update_progress based on if update_progress is provided
