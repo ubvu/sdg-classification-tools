@@ -1,5 +1,6 @@
 data_input_folder: ./data_input/
-data_input_file: works.csv  
+data_input_file: works.csv
+text_column: Abstract # This is the name of the column header that contains the text that will be passed to the SDG classifier. The more text the better the results. Abstract works best.  A maximum of the first 512 tokens will be used to classify.
 data_output_folder: ./data_output/
 sdg_threshold: 0.98 # The threshold a value needs to reach to give an SDG label
 classifier_url: "https://aurora-sdg.labs.vu.nl/classifier/classify/aurora-sdg-multi" # options are: "https://aurora-sdg.labs.vu.nl/classifier/classify/aurora-sdg-multi" (a faster model, suitable for estimating some top results, but less suitable for threshold values in data science) or "https://aurora-sdg.labs.vu.nl/classifier/classify/aurora-sdg" (a slower model, but more suitable for setting threshold values for filtering in data science)

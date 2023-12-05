@@ -44,8 +44,7 @@ def classify_text_sdg(text, classifier_url):
     else:
         return None
 
-def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_base_name, rate_limit=None, update_progress=None):
-    """
+    def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_base_name, text_column, rate_limit=None, update_progress=None):    """
     Process the CSV file by classifying each row with the SDG classifier and appending the results.
 
     Args:
@@ -54,6 +53,9 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
     sdg_threshold (float): Threshold value for SDG predictions.
     classifier_url (str): URL of the SDG classifier API.
     input_base_name (str): Base name of the input file for naming the output file.
+    text_column (str): Name of the column containing the abstract.
+    rate_limit (float): treshold for fair API usage.
+    update_progress (float): indicator with percentage done. 
     """
     global stop_classification
     
@@ -95,7 +97,7 @@ def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_bas
             break
         
         # Skip processing if the 'Abstract' field is blank
-        if pd.isna(row['Abstract']) or row['Abstract'].strip() == '':
+        if text_column not in row or pd.isna(row[text_column]) or row[text_column].strip() == '':
             continue
 
         # Update progress for GUI if update_progress function is provided
@@ -174,6 +176,7 @@ def main():
     # Construct the full paths for input and output
     input_file = config['data_input_file']
     input_path = os.path.join(config['data_input_folder'], input_file)
+    text_column = config['text_column']  # Read the text column name from config
     output_path = config['data_output_folder']
     sdg_threshold = config['sdg_threshold']
     classifier_url = config['classifier_url']
@@ -182,7 +185,7 @@ def main():
     input_base_name = os.path.splitext(os.path.basename(input_file))[0]
 
     # Process the CSV file
-    process_csv(input_path, output_path, sdg_threshold, classifier_url, input_base_name)
-
+    process_csv(input_path, output_path, sdg_threshold, classifier_url, input_base_name, text_column)
+    
 if __name__ == "__main__":
     main()
