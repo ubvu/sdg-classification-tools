@@ -44,7 +44,8 @@ def classify_text_sdg(text, classifier_url):
     else:
         return None
 
-    def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_base_name, text_column, rate_limit=None, update_progress=None):    """
+def process_csv(file_path, output_path, sdg_threshold, classifier_url, input_base_name, text_column, rate_limit=None, update_progress=None):    
+    """
     Process the CSV file by classifying each row with the SDG classifier and appending the results.
 
     Args:
