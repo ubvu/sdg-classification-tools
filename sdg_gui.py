@@ -5,6 +5,7 @@ import threading
 import os  # Import the os module
 import pandas as pd  # Import pandas to read the CSV file for record count
 import sdg_csv  # Assuming sdg_csv.py is the module name of your script
+from pandasgui import show
 
 # Global variable to keep track of the classification state
 is_classifying = False
@@ -55,6 +56,14 @@ def classify():
 
     # Start the classification process in a separate thread
     threading.Thread(target=start_classification, args=(input_file, output_folder, model_url, threshold, rate_limit)).start()
+
+# Function to open PandasGUI with the DataFrame
+def open_pandasgui():
+    # Load data into a DataFrame
+    df = pd.read_csv('path_to_your_output_file.csv')
+    # Open PandasGUI in a new thread to avoid blocking the Tkinter GUI
+    threading.Thread(target=lambda: show(df)).start()
+
 
 def stop_and_save():
     global is_classifying
@@ -117,6 +126,10 @@ The results are appended to the original file with additional columns indicating
 
 description_label = tk.Label(root, text=description_text, justify=tk.LEFT, wraplength=800)
 description_label.grid(row=9, column=0, columnspan=6, sticky='w', padx=10, pady=10)
+
+# Add a button in your Tkinter app to open PandasGUI
+pandasgui_button = tk.Button(root, text="Open in PandasGUI", command=open_pandasgui)
+pandasgui_button.grid(row=9, column=1, pady=10)
 
 
 # Run the application
