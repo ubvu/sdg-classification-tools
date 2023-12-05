@@ -15,6 +15,23 @@ def load_config():
     with open('config.yaml', 'r') as file:
         return yaml.safe_load(file)
 
+# Function to read column headers from the CSV file
+def get_csv_columns(file_path):
+    try:
+        df = pd.read_csv(file_path)
+        return df.columns.tolist()
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to read file: {e}")
+        return []
+
+# Function to update the dropdown menu with column headers
+def update_column_dropdown():
+    file_path = file_input.get()
+    columns = get_csv_columns(file_path)
+    column_dropdown['values'] = columns
+    if columns:
+        column_dropdown.set(config['text_column'])  # Set default value from config
+
 # Function to stop the classification and save progress
 def stop_and_save():
     sdg_csv.set_stop_classification(True)
@@ -28,10 +45,10 @@ def update_progress(current_progress, total_rows, rate_limit):
     root.update_idletasks()
 
 # Function to start the classification process
-def start_classification(input_file, output_folder, model_url, threshold, rate_limit):
+def start_classification(input_file, output_folder, model_url, threshold, rate_limit, selected_column):
     global is_classifying
     input_base_name = os.path.splitext(os.path.basename(input_file))[0]
-    sdg_csv.process_csv(input_file, output_folder, threshold, model_url, input_base_name, rate_limit, update_progress)
+    sdg_csv.process_csv(input_file, output_folder, threshold, model_url, input_base_name, selected_column, rate_limit, update_progress)
     is_classifying = False
     stop_button['state'] = 'disabled'  # Disable "Stop and Save" button
     messagebox.showinfo("Complete", "Classification completed successfully.")
@@ -55,7 +72,8 @@ def classify():
     is_classifying = True
 
     # Start the classification process in a separate thread
-    threading.Thread(target=start_classification, args=(input_file, output_folder, model_url, threshold, rate_limit)).start()
+    selected_column = column_dropdown.get()
+    threading.Thread(target=start_classification, args=(input_file, output_folder, model_url, threshold, rate_limit, selected_column)).start()
 
 # Function to open PandasGUI with the DataFrame
 def open_pandasgui():
@@ -80,10 +98,16 @@ root = tk.Tk()
 root.title("SDG Classification Tool")
 
 # Input file selection
-tk.Label(root, text="Select Input File:").grid(row=0, column=0, sticky='w')
 file_input = tk.StringVar(value=config['data_input_folder'] + config['data_input_file'])
-tk.Entry(root, textvariable=file_input, width=50).grid(row=0, column=1)
-tk.Button(root, text="Browse...", command=lambda: file_input.set(filedialog.askopenfilename())).grid(row=0, column=2)
+file_input_entry = tk.Entry(root, textvariable=file_input, width=50)
+file_input_entry.grid(row=0, column=1)
+file_input_browse_button = tk.Button(root, text="Browse...", command=lambda: [file_input.set(filedialog.askopenfilename()), update_column_dropdown()])
+file_input_browse_button.grid(row=0, column=2)
+
+# Dropdown menu for selecting the text column
+tk.Label(root, text="Select Text Column:").grid(row=1, column=0, sticky='w')
+column_dropdown = ttk.Combobox(root, state="readonly")
+column_dropdown.grid(row=1, column=1, sticky='w')
 
 # Output folder selection
 tk.Label(root, text="Select Output Folder:").grid(row=1, column=0, sticky='w')
@@ -134,3 +158,6 @@ pandasgui_button.grid(row=9, column=1, pady=10)
 
 # Run the application
 root.mainloop()
+
+# Update the dropdown menu initially with the current file
+update_column_dropdown()
